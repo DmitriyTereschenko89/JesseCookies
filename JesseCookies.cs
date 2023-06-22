@@ -10,27 +10,27 @@ namespace JesseCookies
 	{
 		private class MinHeap
 		{
-			private readonly List<int> heap;
+			private readonly List<long> heap;
 
-			private void Swap(List<int> arr, int i, int j)
+			private void Swap(int i, int j)
 			{
-				(arr[i], arr[j]) = (arr[j], arr[i]);
+				(heap[i], heap[j]) = (heap[j], heap[i]);
 			}
 
-			private void SiftDown(List<int> arr, int curIdx, int endIdx)
+			private void SiftDown(int curIdx, int endIdx)
 			{
 				int childOneIdx = curIdx * 2 + 1;
 				while (childOneIdx <= endIdx)
 				{
 					int swapIdx = childOneIdx;
 					int childTwoIdx = curIdx * 2 + 2;
-					if (childTwoIdx <= endIdx && arr[childTwoIdx] < arr[childOneIdx])
+					if (childTwoIdx <= endIdx && heap[childTwoIdx] < heap[childOneIdx])
 					{
 						swapIdx = childTwoIdx;
 					}
-					if (arr[swapIdx] < arr[curIdx])
+					if (heap[swapIdx] < heap[curIdx])
 					{
-						Swap(arr, swapIdx, curIdx);
+						Swap(swapIdx, curIdx);
 						curIdx = swapIdx;
 						childOneIdx = curIdx * 2 + 1;
 					}
@@ -41,48 +41,42 @@ namespace JesseCookies
 				}
 			}
 
-			private void SiftUp(List<int> arr, int curIdx)
+			private void SiftUp(int curIdx)
 			{
 				int parentIdx = (curIdx - 1) / 2;
-				while (parentIdx >= 0 && arr[parentIdx] > arr[curIdx])
+				while (parentIdx >= 0 && heap[parentIdx] > heap[curIdx])
 				{
-					Swap(arr, parentIdx, curIdx);
+					Swap(parentIdx, curIdx);
 					curIdx = parentIdx;
 					parentIdx = (curIdx - 1) / 2;
 				}
 			}
 
-			private List<int> BuildHeap(List<int> arr)
-			{
-				int parentIdx = (arr.Count - 2) / 2;
-				for (int i = parentIdx; i >= 0; --i)
-				{
-					SiftDown(arr, parentIdx, arr.Count - 1);
-				}
-				return arr;
-			}
-
 			public MinHeap(List<int> arr)
 			{
-				heap = BuildHeap(arr);
+				heap = new List<long>();
+				foreach (int num in arr)
+				{
+					Push((long)num);
+				}
 			}
 
-			public void Push(int val)
+			public void Push(long val)
 			{
 				heap.Add(val);
-				SiftUp(heap, heap.Count - 1);
+				SiftUp(heap.Count - 1);
 			}
 
-			public int Pop()
+			public long Pop()
 			{
-				Swap(heap, 0, heap.Count - 1);
-				int removed = heap[^1];
+				Swap(0, heap.Count - 1);
+				long removed = heap[^1];
 				heap.RemoveAt(heap.Count - 1);
-				SiftDown(heap, 0, heap.Count - 1);
+				SiftDown(0, heap.Count - 1);
 				return removed;
 			}
 
-			public int Peek()
+			public long Peek()
 			{
 				return heap[0];
 			}
@@ -99,13 +93,17 @@ namespace JesseCookies
 			int countCookies = 0;
 			while (!minHeap.IsEmpty() && minHeap.Peek() < k)
 			{
-				int firstMin = minHeap.Pop();
-				int secondMin = minHeap.Pop();
-				int newCookie = firstMin + secondMin * 2;
+				long firstMin = minHeap.Pop();
+				long secondMin = minHeap.IsEmpty() ? -1 : minHeap.Pop();
+				if (secondMin == -1)
+				{
+					return -1;
+				}
+				long newCookie = firstMin + secondMin * 2;
 				minHeap.Push(newCookie);
 				++countCookies;
 			}
-			return countCookies;
+			return minHeap.IsEmpty() ? -1 : countCookies;
 		}
 
 	}
